@@ -5,7 +5,7 @@ import java.util.Map;
 class Run08x2 extends Base {
 
     public static void main(String[] args) {
-        new Run08x2().run(8, 2);
+        new Run08x2().run();
     }
 
     @Override

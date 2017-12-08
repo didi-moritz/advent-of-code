@@ -4,6 +4,8 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -12,6 +14,10 @@ abstract class Base {
     private static String YEAR_PATH = "2017";
 
     private static String INPUT_FILENAME_PATTERN = YEAR_PATH + "/input-%02d.txt";
+
+    private static String RUN_TITLE_PATTERN = "# Running task for Day %d Part %d #";
+
+    private static Pattern CLASS_NAME_PATTERN = Pattern.compile("^\\D+(\\d+)\\D(\\d)$");
 
 	private int runNumber;
 
@@ -31,15 +37,26 @@ abstract class Base {
 
     private INPUT_TYPE inputType = INPUT_TYPE.FILE;
 
-	void run(int runNumber, int partNumber) {
-	    this.runNumber = runNumber;
-	    this.partNumber = partNumber;
-
-	    this.runCode = String.format("%02d.%d", runNumber, partNumber);
-
-	    readInputFile();
-
+	void run() {
         try {
+            String className = this.getClass().getSimpleName();
+            Matcher matcher = CLASS_NAME_PATTERN.matcher(className);
+            if (!matcher.matches()) {
+                throw new Exception("Class name " + className + " doesn't match pattern " + CLASS_NAME_PATTERN);
+            }
+            int runNumber = Integer.parseInt(matcher.group(1));
+            int partNumber = Integer.parseInt(matcher.group(2));
+
+            this.runNumber = runNumber;
+            this.partNumber = partNumber;
+
+            this.runCode = String.format("%02d.%d", runNumber, partNumber);
+
+            System.out.println(String.format(RUN_TITLE_PATTERN, runNumber, partNumber));
+
+            readInputFile();
+
+
             printResult(doTheThing());
         } catch (Exception e) {
             e.printStackTrace();
@@ -47,12 +64,10 @@ abstract class Base {
     }
 
     private void printResult(String result) {
-	    System.out.println("Result: " + result);
+	    System.out.println("# Result: " + result);
     }
 
     private void readInputFile() {
-		System.out.println("Reading input file...");
-
 		String filePath = String.format(INPUT_FILENAME_PATTERN, runNumber);
 
         try (Stream<String> stream = Files.lines(Paths.get(filePath))) {

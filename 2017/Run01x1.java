@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 class Run01x1 extends Base {
 
     public static void main(String[] args) {
-        new Run01x1().run(1, 1);
+        new Run01x1().run();
     }
 
     @Override
