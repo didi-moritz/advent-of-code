@@ -13,7 +13,7 @@ abstract class Base {
 
     private static String YEAR_PATH = "2017";
 
-    private static String INPUT_FILENAME_PATTERN = YEAR_PATH + "/input-%02d.txt";
+    private static String INPUT_FILENAME_PATTERN = YEAR_PATH + "/resources/input-%02d.txt";
 
     private static String RUN_TITLE_PATTERN = "# Running task for Day %d Part %d #";
 
