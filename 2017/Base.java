@@ -39,7 +39,11 @@ abstract class Base {
 
 	    readInputFile();
 
-	    printResult(doTheThing());
+        try {
+            printResult(doTheThing());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void printResult(String result) {
@@ -65,7 +69,7 @@ abstract class Base {
 	    this.commandLineInput = input;
     }
 
-    private List<String> getLines() {
+    List<String> getLines() {
         switch (inputType) {
             case FILE:
                 return inputFileLines;
@@ -89,5 +93,5 @@ abstract class Base {
 	    return getInputStrings().stream().map(Integer::valueOf).collect(Collectors.toList());
     }
 
-    abstract String doTheThing();
+    abstract String doTheThing() throws Exception;
 }
