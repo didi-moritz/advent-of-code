@@ -1,9 +1,7 @@
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -15,29 +13,32 @@ abstract class Base {
 
     private static String INPUT_FILENAME_PATTERN = YEAR_PATH + "/resources/input-%02d.txt";
 
+    private static String TEST_INPUT_FILENAME_PATTERN = YEAR_PATH + "/resources/input-test-%02d.txt";
+    private static String TEST_INPUT_FILENAME_PART_PATTERN = YEAR_PATH + "/resources/input-test-%02d-%d.txt";
+
     private static String RUN_TITLE_PATTERN = "# Running task for Day %d Part %d #";
 
     private static Pattern CLASS_NAME_PATTERN = Pattern.compile("^\\D+(\\d+)\\D(\\d)$");
 
-	private int runNumber;
+    private int runNumber;
 
-	private int partNumber;
+    private int partNumber;
 
-	private String runCode;
+    private String runCode;
 
-	private List<String> inputFileLines;
+    private List<String> inputFileLines;
 
-	private List<String> testFileInputLines;
+    private List<String> testInputFileLines;
 
-	private String commandLineInput = "";
+    private String commandLineInput = "";
 
-    enum INPUT_TYPE {
+    enum InputType {
         FILE, TEST_FILE, COMMAND_LINE
     }
 
-    private INPUT_TYPE inputType = INPUT_TYPE.FILE;
+    private InputType inputType = InputType.FILE;
 
-	void run() {
+    void run() {
         try {
             String className = this.getClass().getSimpleName();
             Matcher matcher = CLASS_NAME_PATTERN.matcher(className);
@@ -55,33 +56,122 @@ abstract class Base {
             System.out.println(String.format(RUN_TITLE_PATTERN, runNumber, partNumber));
 
             readInputFile();
+            readTestInputFile();
 
-
-            printResult(doTheThing());
+            showMenu();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    private void showMenu() throws Exception {
+        while (true) {
+            System.out.println("############################");
+            System.out.println("# (1) Use input file       #");
+            if (this.testInputFileLines != null) {
+                System.out.println("# (2) Use test input file  #");
+            }
+            System.out.println("# (3) Enter input          #");
+            System.out.println("############################");
+            System.out.print("# Enter choice: ");
+
+            String choice = readConsoleInput();
+
+            if (choice == null) {
+                break;
+            }
+
+            switch (choice) {
+                case "1":
+                    setInputType(InputType.FILE);
+                    doAndPrintTheThing();
+                    break;
+                case "2":
+                    if (this.testInputFileLines != null) {
+                        setInputType(InputType.TEST_FILE);
+                        doAndPrintTheThing();
+                    }
+                case "3":
+                    enterInput();
+                    break;
+            }
+        }
+    }
+
+    private void enterInput() throws Exception {
+        System.out.print("# Enter input: ");
+
+        this.commandLineInput = readConsoleInput();
+
+        if (this.commandLineInput == null) {
+            return;
+        }
+
+        setInputType(InputType.COMMAND_LINE);
+
+        doAndPrintTheThing();
+
+        enterInput();
+    }
+
+    private String readConsoleInput() {
+        try {
+            Scanner scanner = new Scanner(System.in);
+            String result = scanner.nextLine().trim();
+            return result.isEmpty() ? null : result;
+        } catch (NoSuchElementException e) {
+            return null;
+        }
+    }
+
+    private void doAndPrintTheThing() throws Exception {
+        printResult(doTheThing());
+    }
+
     private void printResult(String result) {
-	    System.out.println("# Result: " + result);
+        System.out.println("# Result: " + result);
     }
 
     private void readInputFile() {
-		String filePath = String.format(INPUT_FILENAME_PATTERN, runNumber);
+        inputFileLines = readFile(String.format(INPUT_FILENAME_PATTERN, runNumber));
+    }
 
+    private void readTestInputFile() {
+        testInputFileLines = readFile(
+                String.format(TEST_INPUT_FILENAME_PART_PATTERN, runNumber, partNumber),
+                false);
+
+        if (testInputFileLines == null) {
+            testInputFileLines = readFile(
+                    String.format(TEST_INPUT_FILENAME_PATTERN, runNumber),
+                    false);
+        }
+    }
+
+    private List<String> readFile(String filePath) {
+        return readFile(filePath, true);
+    }
+
+    private List<String> readFile(String filePath, boolean printError) {
         try (Stream<String> stream = Files.lines(Paths.get(filePath))) {
-            inputFileLines = stream
+            return stream
                     .map(String::trim)
                     .filter(s -> !s.isEmpty())
                     .collect(Collectors.toList());
         } catch (IOException e) {
-            System.err.println("Cannot read " + filePath);
+            if (printError) {
+                System.err.println("Cannot read " + filePath);
+            }
+            return null;
         }
-	}
+    }
 
-	private void setCommandLineInput(String input) {
-	    this.commandLineInput = input;
+    private void setCommandLineInput(String input) {
+        this.commandLineInput = input;
+    }
+
+    private void setInputType(InputType inputType) {
+        this.inputType = inputType;
     }
 
     List<String> getLines() {
@@ -89,7 +179,7 @@ abstract class Base {
             case FILE:
                 return inputFileLines;
             case TEST_FILE:
-                return testFileInputLines;
+                return testInputFileLines;
             default:
             case COMMAND_LINE:
                 return Collections.singletonList(commandLineInput);
@@ -101,11 +191,11 @@ abstract class Base {
     }
 
     List<String> getInputStrings() {
-	    return Arrays.asList(getInput().split("\\s+"));
+        return Arrays.asList(getInput().split("\\s+"));
     }
 
     List<Integer> getInputIntegers() {
-	    return getInputStrings().stream().map(Integer::valueOf).collect(Collectors.toList());
+        return getInputStrings().stream().map(Integer::valueOf).collect(Collectors.toList());
     }
 
     abstract String doTheThing() throws Exception;
