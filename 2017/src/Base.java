@@ -191,7 +191,11 @@ abstract class Base {
     }
 
     List<String> getInputStrings() {
-	    return Arrays.asList(getInput().split("\\s+"));
+        return getInputStrings("\\s+");
+    }
+
+    List<String> getInputStrings(String regex) {
+	    return Arrays.asList(getInput().split(regex));
     }
 
     List<Integer> getInputIntegers() {
