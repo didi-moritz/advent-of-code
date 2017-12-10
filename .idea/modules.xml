@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/2015/2015.iml" filepath="$PROJECT_DIR$/2015/2015.iml" />
       <module fileurl="file://$PROJECT_DIR$/2017/2017.iml" filepath="$PROJECT_DIR$/2017/2017.iml" />
-      <module fileurl="file://$PROJECT_DIR$/advent-of-code.iml" filepath="$PROJECT_DIR$/advent-of-code.iml" />
     </modules>
   </component>
 </project>
