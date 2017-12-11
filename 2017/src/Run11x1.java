@@ -11,17 +11,17 @@ class Run11x1 extends Base {
     }
 
     private static final List<Opposites> OPPOSITES_LIST = Arrays.asList(
-            new Opposites("n" ,"s"),
-            new Opposites("ne" ,"sw"),
-            new Opposites("nw" ,"se"));
+            new Opposites("n", "s"),
+            new Opposites("ne", "sw"),
+            new Opposites("nw", "se"));
 
     private static final List<Merges> MERGES_LIST = Arrays.asList(
-            new Merges("ne" ,"nw", "n"),
-            new Merges("n" ,"se", "ne"),
-            new Merges("n" ,"sw", "nw"),
-            new Merges("se" ,"sw", "s"),
-            new Merges("s" ,"ne", "se"),
-            new Merges("s" ,"nw", "sw"));
+            new Merges("ne", "nw", "n"),
+            new Merges("n", "se", "ne"),
+            new Merges("n", "sw", "nw"),
+            new Merges("se", "sw", "s"),
+            new Merges("s", "ne", "se"),
+            new Merges("s", "nw", "sw"));
 
     private static class Opposites {
         String a;
