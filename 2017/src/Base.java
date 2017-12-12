@@ -91,6 +91,7 @@ abstract class Base {
                         setInputType(InputType.TEST_FILE);
                         doAndPrintTheThing();
                     }
+                    break;
                 case "3":
                     enterInput();
                     break;
