@@ -1,21 +1,19 @@
 import java.util.List;
 import java.util.stream.Collectors;
 
-class Run08x1 extends Base {
+class Run08x2 extends Base {
 
     public static void main(String[] args) {
-        new Run08x1().run();
+        new Run08x2().run();
     }
 
     @Override
     String doTheThing() {
         List<String> finalLines = getLines().stream()
                 .map(s -> s
-                        .replaceAll("^\"", "")
-                        .replaceAll("\"$", "")
-                        .replace("\\\\", "X")
-                        .replace("\\\"", "X")
-                        .replaceAll("\\\\x..", "X"))
+                        .replace("\\", "\\\\")
+                        .replace("\"", "\\\"")
+                        .replaceAll("^|$", "\""))
                 .collect(Collectors.toList());
 
         finalLines.forEach(System.out::println);
@@ -30,9 +28,9 @@ class Run08x1 extends Base {
 
         System.out.println("originalCount: " + originalCount);
         System.out.println("finalCount: " + finalCount);
-        System.out.println("sum: " + (originalCount - finalCount));
+        System.out.println("sum: " + (finalCount - originalCount));
 
 
-        return String.valueOf(originalCount - finalCount);
+        return String.valueOf(finalCount - originalCount);
     }
 }
