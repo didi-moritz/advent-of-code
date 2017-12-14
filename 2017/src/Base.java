@@ -18,7 +18,7 @@ abstract class Base {
 
     private static String RUN_TITLE_PATTERN = "# Running task for Day %d Part %d #";
 
-    private static Pattern CLASS_NAME_PATTERN = Pattern.compile("^\\D+(\\d+)\\D(\\d)$");
+    private static Pattern CLASS_NAME_PATTERN = Pattern.compile("^\\D+(\\d+)\\D(\\d)\\D*$");
 
 	private int runNumber;
 
