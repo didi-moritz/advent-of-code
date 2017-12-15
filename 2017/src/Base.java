@@ -196,11 +196,15 @@ abstract class Base {
     }
 
     List<String> getInputStrings(String regex) {
-	    return Arrays.asList(getInput().split(regex));
+	    return Util.getParts(getInput(), regex);
     }
 
     List<Integer> getInputIntegers() {
-	    return getInputStrings().stream().map(Integer::valueOf).collect(Collectors.toList());
+	    return getInputIntegers("\\s+");
+    }
+
+    List<Integer> getInputIntegers(String regex) {
+	    return Util.getIntegerParts(getInput(), regex);
     }
 
     abstract String doTheThing() throws Exception;
