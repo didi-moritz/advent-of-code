@@ -32,11 +32,18 @@ abstract class Base {
 
 	private String commandLineInput = "";
 
+	private boolean trim = true;
+
     enum InputType {
         FILE, TEST_FILE, COMMAND_LINE
     }
 
     private InputType inputType = InputType.FILE;
+
+    void run(boolean trim) {
+        this.trim = trim;
+        run();
+    }
 
 	void run() {
         try {
@@ -156,7 +163,7 @@ abstract class Base {
 	private List<String> readFile(String filePath, boolean printError) {
         try (Stream<String> stream = Files.lines(Paths.get(filePath))) {
             return stream
-                    .map(String::trim)
+                    .map(trim ? String::trim : String::toString)
                     .filter(s -> !s.isEmpty())
                     .collect(Collectors.toList());
         } catch (IOException e) {
