@@ -14,18 +14,74 @@ public class Run21x1 extends Base {
 
     private Boolean[][] image;
 
+    private static final char VISIBLE_DOT = '#';
+    private static final char INVISIBLE_DOT = '.';
+
     @Override
-    String doTheThing() throws Exception {
+    String doTheThing() {
         rules = new HashMap<>();
 
         image = parseBlock(".#./..#/###");
-        int size = image.length;
+        printImage();
 
         for (String l : getLines()) {
             parseLine(l);
         }
 
-        return "-1";
+        for (int i = 0; i < 5; i++) {
+            int size = image.length;
+            int blockSize = size % 2 == 0 ? 2 : 3;
+            int newBlockSize = blockSize + 1;
+
+            int newSize = size * newBlockSize / blockSize;
+
+            Boolean[][] newImage = new Boolean[newSize][newSize];
+
+            for (int j = 0; j < size / blockSize; j++) {
+                for (int k = 0; k < size / blockSize; k++) {
+                    int hash = getStringForm(j, k, blockSize).hashCode();
+                    addBlock(j, k, newBlockSize, newImage, rules.get(hash));
+                }
+            }
+
+            image = newImage;
+
+            printImage();
+        }
+
+        return String.valueOf(Arrays.stream(image)
+                .flatMap(Arrays::stream)
+                .filter(Boolean::booleanValue)
+                .count());
+    }
+
+    private void printImage() {
+        int size = image.length;
+        for (int y = 0; y < size; y++) {
+            for (int x = 0; x < size; x++) {
+                System.out.print(image[x][y] ? VISIBLE_DOT : INVISIBLE_DOT);
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
+
+    private void addBlock(int j, int k, int newBlockSize, Boolean[][] newImage, Boolean[][] block) {
+        for (int y = 0; y < newBlockSize; y++) {
+            for (int x = 0; x < newBlockSize; x++) {
+                newImage[j * newBlockSize + x][k * newBlockSize + y] = block[x][y];
+            }
+        }
+    }
+
+    private String getStringForm(int j, int k, int blockSize) {
+        StringBuilder sb = new StringBuilder();
+        for (int y = k * blockSize; y < (k + 1) * blockSize; y++) {
+            for (int x = j * blockSize; x < (j + 1) * blockSize; x++) {
+                sb.append(image[x][y] ? VISIBLE_DOT : INVISIBLE_DOT);
+            }
+        }
+        return sb.toString();
     }
 
     private void parseLine(String l) {
@@ -67,9 +123,7 @@ public class Run21x1 extends Base {
 
         for (int x = 0; x < block.length; x++) {
             Boolean[] l = block[x];
-            for (int y = 0; y < l.length; y++) {
-                result[x][y] = block[size - x - 1][y];
-            }
+            System.arraycopy(block[size - x - 1], 0, result[x], 0, l.length);
         }
 
         return result;
@@ -90,13 +144,19 @@ public class Run21x1 extends Base {
         return result;
     }
 
-    private void addRule(Boolean[][] to, Boolean[][] from) {
-        String stringForm = getStringForm(to);
-        rules.put(stringForm.hashCode(), from);
+    private void addRule(Boolean[][] from, Boolean[][] to) {
+        rules.put(getHash(from), to);
+    }
+
+    private int getHash(Boolean[][] block) {
+        return getStringForm(block).hashCode();
     }
 
     private String getStringForm(Boolean[][] block) {
-        return Arrays.stream(block).flatMap(b -> Arrays.stream(b)).map(c -> c ? "." : " ").collect(Collectors.joining());
+        return Arrays.stream(block)
+                .flatMap(Arrays::stream)
+                .map(c -> String.valueOf(c ? VISIBLE_DOT : INVISIBLE_DOT))
+                .collect(Collectors.joining());
     }
 
 
@@ -108,7 +168,7 @@ public class Run21x1 extends Base {
         for (int y = 0; y < parts.size(); y++) {
             String part = parts.get(y);
             for (int x = 0; x < part.length(); x++) {
-                block[x][y] = part.charAt(x) == '#';
+                block[x][y] = part.charAt(x) == VISIBLE_DOT;
             }
         }
 
