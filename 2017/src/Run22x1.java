@@ -10,7 +10,6 @@ public class Run22x1 extends Base {
     private boolean[][] grid;
 
     private static final char INFECTED = '#';
-    private static final char CLEAN = '.';
 
     private enum Direction {
         N(0),
