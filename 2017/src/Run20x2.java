@@ -1,7 +1,6 @@
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 public class Run20x2 extends Base {
 
@@ -10,11 +9,11 @@ public class Run20x2 extends Base {
     }
 
     private class Coords {
-        int x;
-        int y;
-        int z;
+        long x;
+        long y;
+        long z;
 
-        public Coords(int x, int y, int z) {
+        Coords(int x, int y, int z) {
             this.x = x;
             this.y = y;
             this.z = z;
@@ -26,49 +25,98 @@ public class Run20x2 extends Base {
         Coords v;
         Coords a;
 
-        public Particle(Coords p, Coords v, Coords a) {
+        boolean markDelete = false;
+
+        Particle(Coords p, Coords v, Coords a) {
             this.p = p;
             this.v = v;
             this.a = a;
         }
+
+        boolean samePosition(Particle o) {
+            return this.p.x == o.p.x && this.p.y == o.p.y && this.p.z == o.p.z;
+        }
     }
 
-    private Map<Integer, Particle> particles;
+    private List<Particle> particles;
+    private int result;
 
     @Override
-    String doTheThing() throws Exception {
-        particles = new HashMap<>();
-
-        int result = 0;
+    String doTheThing() {
+        particles = new ArrayList<>();
 
         for (int i = 0; i < getLines().size(); i++) {
             String line = getLines().get(i);
             List<String> parts = Util.getParts(line);
 
-            particles.put(i, new Particle(
+            particles.add(new Particle(
                     getCoords(parts.get(0)),
                     getCoords(parts.get(1)),
                     getCoords(parts.get(2))
             ));
         }
 
-        while (!particles.isEmpty()) {
+        result = particles.size();
+
+        for (int i = 0; i < 10_000 && !particles.isEmpty(); i++) {
             moveAllParticles();
 
-            List<Integer> collisions = getCollitions();
+            removeLostParticles();
+
+            findCollisions();
+
+            removeCollisions();
+
+            int j = i + 1;
+            if (j % 100 == 0) {
+                System.out.println(j + " -> " + result);
+            }
         }
 
 
-        return "-1";
+        return String.valueOf(result);
     }
 
-    private List<Integer> getCollitions() {
-        List<Integer> collisions = new ArrayList<>();
-        return collisions;
+    private void removeCollisions() {
+        Iterator<Particle> iterator = particles.iterator();
+
+        while (iterator.hasNext()) {
+            Particle particle = iterator.next();
+            if (particle.markDelete) {
+                iterator.remove();
+                result--;
+            }
+        }
+    }
+
+    private void removeLostParticles() {
+        particles.removeIf(particle ->
+                Math.abs(particle.v.x) > Integer.MAX_VALUE ||
+                Math.abs(particle.v.y) > Integer.MAX_VALUE ||
+                Math.abs(particle.v.z) > Integer.MAX_VALUE);
+    }
+
+    private void findCollisions() {
+        for (int i = 0; i < particles.size(); i++) {
+            Particle p1 = particles.get(i);
+
+            if (p1.markDelete) {
+                continue;
+            }
+
+            for (int j =i + 1; j < particles.size(); j++) {
+                Particle p2 = particles.get(j);
+
+                if (p1.samePosition(p2)) {
+                    p1.markDelete = true;
+                    p2.markDelete = true;
+                }
+            }
+        }
     }
 
     private void moveAllParticles() {
-        for (Particle particle : particles.values()) {
+        for (Particle particle : particles) {
             particle.v.x += particle.a.x;
             particle.v.y += particle.a.y;
             particle.v.z += particle.a.z;
@@ -80,7 +128,7 @@ public class Run20x2 extends Base {
     }
 
     private Coords getCoords(String s) {
-        s = s.substring(s.indexOf('<') + 1, s.length() - 1);
+        s = s.substring(s.indexOf('<') + 1, s.indexOf('>'));
 
         List<Integer> v = Util.getIntegerParts(s, ",");
         return new Coords(v.get(0), v.get(1), v.get(2));
